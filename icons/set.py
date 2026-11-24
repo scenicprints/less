@@ -335,10 +335,6 @@ icon("com.google.android.apps.tachyon", "meet", None,
      fill(rect(4, 14, 34, 28, R), "#00832D"),
      fill("M38 22l14-8v28l-14-8z", "#00AC47"))
 
-icon("com.nudge.assistant", "nudge", None,
-     fill(circle(28, 28, 24), "#16181C"),
-     stroke("M38 24a10 10 0 1 0 3 7", "#F4F3EF"), fill(circle(40, 20, 4), "#FFB23E"))
-
 icon("com.spotify.music", "spotify", None,
      fill(circle(28, 28, 24), "#1DB954"),
      stroke("M16 21a26 26 0 0 1 25 2", INK, 3.5), stroke("M18 28a20 20 0 0 1 19 2", INK, 3.5),

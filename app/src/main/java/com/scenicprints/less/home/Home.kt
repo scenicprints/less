@@ -106,7 +106,9 @@ fun Home(
     on: HomeEvents
 ) {
     val p = LocalPalette.current
-    val pager = rememberPagerState(pageCount = { layout.pages.size })
+    // One spare empty page past the last, always, so there is somewhere to swipe to and drop on.
+    val pageCount = layout.pages.size + 1
+    val pager = rememberPagerState(pageCount = { pageCount })
     val scope = rememberCoroutineScope()
     val density = LocalDensity.current
     val drag = remember { DragState() }
@@ -126,10 +128,7 @@ fun Home(
         val e = drag.edge ?: return@LaunchedEffect
         kotlinx.coroutines.delay(450)
         val target = pager.currentPage + e
-        if (target >= 0 && target <= layout.pages.size) {
-            if (target == layout.pages.size) on.arranged(layout.addPage())
-            pager.animateScrollToPage(target.coerceAtMost(layout.pages.size), animationSpec = mechanism())
-        }
+        if (target in 0 until pageCount) pager.animateScrollToPage(target, animationSpec = mechanism())
         drag.edge = null
     }
 
@@ -234,7 +233,7 @@ fun Home(
                 ) { page ->
                     PageGrid(
                         page = page,
-                        items = layout.pages[page].items,
+                        items = layout.pages.getOrNull(page)?.items.orEmpty(),
                         cell = cell,
                         hidden = (drag.dragging as? Place.OnPage)?.takeIf { it.page == page }?.item,
                         icon = icon,
@@ -251,7 +250,7 @@ fun Home(
 
             Spacer(Modifier.height(14.dp))
             Dial(
-                pager, layout.pages.size,
+                pager, pageCount,
                 scrollTo = { page, fraction -> scope.launch { pager.scrollToPage(page, fraction) } },
                 snap = { scope.launch { pager.animateScrollToPage(pager.currentPage, animationSpec = mechanism()) } }
             )

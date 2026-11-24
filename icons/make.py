@@ -12,6 +12,8 @@ import re
 HERE = os.path.dirname(os.path.abspath(__file__))
 SVG_DIR = os.path.join(HERE, "svg")
 DRAWABLE_DIR = os.path.join(HERE, "..", "app", "src", "main", "res", "drawable")
+PNG_DIR = os.path.join(HERE, "png")
+PNG_OUT_DIR = os.path.join(HERE, "..", "app", "src", "main", "res", "drawable-nodpi")
 ASSETS_DIR = os.path.join(HERE, "..", "app", "src", "main", "assets")
 
 WHITE = "#F6F2EA"
@@ -140,23 +142,34 @@ def main():
     os.makedirs(DRAWABLE_DIR, exist_ok=True)
     os.makedirs(ASSETS_DIR, exist_ok=True)
     # Old outputs go, so a renamed or removed icon leaves nothing behind.
-    for d, pat in ((SVG_DIR, r".*\.svg"), (DRAWABLE_DIR, r"ic_.*\.xml")):
+    os.makedirs(PNG_OUT_DIR, exist_ok=True)
+    for d, pat in ((SVG_DIR, r".*\.svg"), (DRAWABLE_DIR, r"ic_.*\.xml"), (PNG_OUT_DIR, r"ic_.*\.png")):
         for f in os.listdir(d):
             if re.fullmatch(pat, f):
                 os.remove(os.path.join(d, f))
     index = {}
+    # A generated PNG wins over the drawn icon for the same app; the drawing stays as the fallback
+    # in set.py and in svg/, but only one of the two becomes the launcher's resource.
+    from png_step import all_pngs, process
+    pngs = all_pngs(PNG_DIR)
+    for package, src in pngs.items():
+        name = ICONS[package]["name"] if package in ICONS else re.sub(r"[^a-z0-9]+", "_", package.lower()).strip("_")
+        process(src, os.path.join(PNG_OUT_DIR, f"ic_{name}.png"))
+        index[package] = f"ic_{name}"
     for package, entry in ICONS.items():
         name = entry["name"]
         assert re.fullmatch(r"[a-z][a-z0-9_]*", name), name
         with open(os.path.join(SVG_DIR, f"{package}.svg"), "w", encoding="utf-8", newline="\n") as f:
             f.write(svg_of(entry))
+        if package in pngs:
+            continue
         with open(os.path.join(DRAWABLE_DIR, f"ic_{name}.xml"), "w", encoding="utf-8", newline="\n") as f:
             f.write(drawable_of(entry))
         index[package] = f"ic_{name}"
     with open(os.path.join(ASSETS_DIR, "icons.json"), "w", encoding="utf-8", newline="\n") as f:
         json.dump(index, f, indent=2, sort_keys=True)
         f.write("\n")
-    print(f"{len(index)} icons written")
+    print(f"{len(index)} icons written, {len(pngs)} of them from png/")
 
 
 if __name__ == "__main__":

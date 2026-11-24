@@ -23,10 +23,21 @@ all, so it is found at a glance. What makes it Rams is the drawing.
 the dock, the pages, the contents of the Home, Money, Bambu and Travel decks, and the phone's
 basics so the drawer is drawn too. The four web apps pinned through Brave keep their site icons.
 
+## Generated icons
+
+Most icons come from an image model, prompted with `prompts.md`. Save each result as
+`png/<package>.png`. The pipeline keys out the background by flooding in from the edges, so an
+off-white mark inside a disc survives and whatever off-white the model chose does not matter;
+softens the edge so no fringe shows on charcoal; trims and scales the mark to the same box as the
+drawn icons; and writes a 256 px PNG into `res/drawable-nodpi`. A generated icon wins over the
+drawn one for the same app. Fake transparency, a painted checkerboard, cannot be keyed; ask for a
+plain background instead.
+
 ## The pipeline
 
-`set.py` is the source of truth: each icon is a few lines of Python naming its package and its
-marks. `make.py` holds the helpers and the writers. Running it writes:
+`set.py` is the drawn set: each icon is a few lines of Python naming its package and its marks,
+the fallback for anything the model fumbles. `make.py` holds the helpers and the writers, and
+`png_step.py` the generated-icon step. Running `make.py` writes:
 
 - `svg/<package>.svg`, one per app, for looking at and for the mockups.
 - `../app/src/main/res/drawable/ic_<name>.xml`, an Android vector drawable per app, what the
@@ -40,5 +51,5 @@ Run it from this folder after any change:
 python make.py
 ```
 
-No dependencies beyond Python. The drawables use only what Android's vector format supports:
-paths with fills and strokes, no masks, no gradients, no text.
+Needs Pillow and numpy for the generated icons. The drawables use only what Android's vector
+format supports: paths with fills and strokes, no masks, no gradients, no text.
