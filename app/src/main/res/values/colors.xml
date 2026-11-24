@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- The charcoal ground from ui/Theme.kt, painted under the window before Compose draws. -->
+    <color name="window">#131313</color>
+    <color name="icon_bg">#131313</color>
+</resources>
