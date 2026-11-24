@@ -9,6 +9,7 @@ import android.appwidget.AppWidgetProviderInfo
 import android.content.Context
 import android.content.Intent
 import android.graphics.Rect
+import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.util.SizeF
@@ -165,7 +166,7 @@ fun WidgetSlot(
     AndroidView(
         factory = { c ->
             widgets.view(c, id, info).apply {
-                updateAppWidgetSize(null, listOf(SizeF(width.value, height.value)))
+                updateAppWidgetSize(Bundle(), listOf(SizeF(width.value, height.value)))
             }
         },
         update = { v ->
